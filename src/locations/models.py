@@ -1,10 +1,10 @@
 from decimal import Decimal
 from src.database import Base
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy import ForeignKey
 
 
-class Location(Base):
+class LocationModel(Base):
     __tablename__ = "locations"
 
     name: Mapped[str] = mapped_column(nullable=False)
@@ -12,7 +12,7 @@ class Location(Base):
     longitude: Mapped[Decimal] = mapped_column(nullable=False)
 
 
-class LocationUser(Base):
+class LocationUserModel(Base):
     __tablename__ = "user_location_relation"
 
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))

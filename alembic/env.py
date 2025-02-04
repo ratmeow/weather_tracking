@@ -5,10 +5,11 @@ from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 
+from src.users.models import UserModel
+from src.user_sessions.models import UserSessionModel
+from src.locations.models import LocationModel, LocationUserModel
 from src.database import Base
 from src.config import db_settings
-from src.users.models import User
-from src.locations.models import Location, LocationUser
 
 from alembic import context
 

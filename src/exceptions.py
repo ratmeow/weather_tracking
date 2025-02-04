@@ -1,0 +1,2 @@
+class DatabaseInternalError(Exception):
+    pass
