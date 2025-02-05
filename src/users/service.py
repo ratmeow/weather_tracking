@@ -3,13 +3,15 @@ from src.users.schemas import UserSchema, UserRegisterRequest, UserLoginRequest,
 from src.locations.schemas import Location
 from src.auth.utils import get_pwd_hash, verify_pwd
 from src.users.models import UserModel, UserSessionModel
-
+from src.exceptions import UserAlreadyExistsError, UserNotFoundError
 
 class UserService:
 
     @staticmethod
     async def register_user_service(register_data: UserRegisterRequest) -> None:
-        # проверка что пользователя с таким логином нет
+        user = await UserDAO.get_user_by_login(login=register_data.login)
+        if user:
+            raise UserAlreadyExistsError(message="User with that login already exists")
         hashed_password = get_pwd_hash(password=register_data.password)
         await UserDAO.add_user(user_data=UserSchema(login=register_data.login,
                                                     password=hashed_password))
@@ -17,8 +19,12 @@ class UserService:
     @staticmethod
     async def login_user_service(login_data: UserLoginRequest) -> UserSessionResponse:
         user: UserModel = await UserDAO.get_user_by_login(login=login_data.login)
+        if user is None:
+            raise UserNotFoundError(message="User not found")
         if verify_pwd(pwd=login_data.password, hashed_pwd=user.password):
-            user_session = await UserDAO.add_user_session(user_id=user.id)
+            user_session = await UserDAO.get_user_session_by_user(user_id=user.id)
+            if not user_session:
+                user_session = await UserDAO.add_user_session(user_id=user.id)
             return UserSessionResponse(session_id=str(user_session.id))
 
     @staticmethod
@@ -27,8 +33,9 @@ class UserService:
 
     @staticmethod
     async def get_user_locations_service(session_id: str) -> list[Location]:
-        user_session: UserSessionModel = await UserDAO.get_user_session(session_id=session_id)
+        user_session: UserSessionModel = await UserDAO.get_user_session_by_id(session_id=session_id)
         user: UserModel = user_session.user
         locations = user.locations
         return [Location.from_orm(loc) for loc in locations]
+        # возврат погоды
 

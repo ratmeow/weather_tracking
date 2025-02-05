@@ -7,3 +7,7 @@ class Location(BaseModel):
     name: str
     longitude: Decimal
     latitude: Decimal
+
+
+class LocationSearchResponse(BaseModel):
+    pass
