@@ -19,6 +19,9 @@ passlib = {extras = ["bcrypt"], version = "^1.7.4"}
 python-multipart = "^0.0.20"
 
 
+[tool.poetry.group.develop.dependencies]
+requests = "^2.32.3"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"

@@ -13,3 +13,6 @@ class UserAlreadyExistsError(ServiceError):
 
 class UserNotFoundError(ServiceError):
     pass
+
+class UnauthorizedUserError(ServiceError):
+    pass

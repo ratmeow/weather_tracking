@@ -6,7 +6,7 @@ import logging
 import asyncpg
 logger = logging.getLogger(__name__)
 
-engine = create_async_engine(url=db_settings.db_url, echo=True)
+engine = create_async_engine(url=db_settings.db_url)
 async_session_maker = async_sessionmaker(engine, expire_on_commit=False)
 
 

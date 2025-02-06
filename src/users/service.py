@@ -1,9 +1,9 @@
 from src.users.dao import UserDAO
 from src.users.schemas import UserSchema, UserRegisterRequest, UserLoginRequest, UserSessionResponse
-from src.locations.schemas import Location
 from src.auth.utils import get_pwd_hash, verify_pwd
 from src.users.models import UserModel, UserSessionModel
-from src.exceptions import UserAlreadyExistsError, UserNotFoundError
+from src.exceptions import UserAlreadyExistsError, UserNotFoundError, UnauthorizedUserError
+
 
 class UserService:
 
@@ -22,7 +22,7 @@ class UserService:
         if user is None:
             raise UserNotFoundError(message="User not found")
         if verify_pwd(pwd=login_data.password, hashed_pwd=user.password):
-            user_session = await UserDAO.get_user_session_by_user(user_id=user.id)
+            user_session = await UserDAO.get_user_session_by_user_id(user_id=user.id)
             if not user_session:
                 user_session = await UserDAO.add_user_session(user_id=user.id)
             return UserSessionResponse(session_id=str(user_session.id))
@@ -32,10 +32,10 @@ class UserService:
         return await UserDAO.remove_user_session(session_id=session_id)
 
     @staticmethod
-    async def get_user_locations_service(session_id: str) -> list[Location]:
+    async def get_user_by_session(session_id: str) -> UserSchema:
         user_session: UserSessionModel = await UserDAO.get_user_session_by_id(session_id=session_id)
-        user: UserModel = user_session.user
-        locations = user.locations
-        return [Location.from_orm(loc) for loc in locations]
-        # возврат погоды
+        if not user_session:
+            raise UnauthorizedUserError
 
+        user = UserSchema.from_orm(user_session.user)
+        return user

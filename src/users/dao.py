@@ -51,21 +51,7 @@ class UserDAO:
 
     @staticmethod
     @connection()
-    async def add_user_location():
-        pass
-
-    @staticmethod
-    @connection
-    async def get_user_locations(user_id: int, session: AsyncSession) -> list[LocationModel]:
-        query = select(UserModel).filter_by(id=user_id)
-        result = await session.execute(query)
-        user = result.scalars().first()
-        locations = user.locations
-        return locations
-
-    @staticmethod
-    @connection()
-    async def get_user_session_by_user(user_id: int, session: AsyncSession) -> Optional[UserSessionModel]:
+    async def get_user_session_by_user_id(user_id: int, session: AsyncSession) -> Optional[UserSessionModel]:
         result = await session.scalars(select(UserSessionModel).filter_by(user_id=user_id))
         user_session = result.first()
         return user_session

@@ -3,7 +3,9 @@ from fastapi.responses import RedirectResponse
 from typing import Annotated, Optional
 from src.users.schemas import UserSchema, UserRegisterRequest, UserLoginRequest, UserSessionResponse
 from src.users.service import UserService
+from src.locations.service import LocationService
 from src.exceptions import UserAlreadyExistsError, DatabaseInternalError, UserNotFoundError
+from src.locations.schemas import Location
 
 router = APIRouter(tags=["user"])
 
@@ -27,6 +29,7 @@ async def login_user_api(login_data: UserLoginRequest):
     except UserNotFoundError as e:
         return HTTPException(status_code=404, detail=e.message)
 
+
 # поменять на пост
 @router.get("/logout")
 async def logout_user_api(session_id: Annotated[Optional[str], Cookie()] = None):
@@ -39,18 +42,27 @@ async def logout_user_api(session_id: Annotated[Optional[str], Cookie()] = None)
 @router.get("/")
 async def main_api(session_id: Annotated[Optional[str], Cookie()] = None):
     if session_id:
-        return await UserService.get_user_locations_service(session_id=session_id)
+        return await LocationService.get_locations_by_user_service(session_id=session_id)
     return "Home"
 
 
 @router.get("/search")
-async def location_search_api(location_name: Annotated[str, Form()]):
-    pass  # locations list
+async def location_search_api(location_name: str,
+                              session_id: Annotated[Optional[str], Cookie()] = None):
+    locations = await LocationService.search_locations_service(location_name=location_name,
+                                                               session_id=session_id)
+    return locations
+
 
 @router.post("/search")
-async def location_add_api(location_id: Annotated[int, Form()]):
-    pass  # redirect Home
+async def location_add_api(location_data: Annotated[Location, Form()],
+                           session_id: Annotated[Optional[str], Cookie()] = None):
+    await LocationService.add_location_service(location_data=location_data,
+                                               session_id=session_id)
+
 
 @router.delete("/")
-async def location_add_api(location_id: Annotated[int, Form()]):
-    pass  # return None
+async def location_delete_api(location_data: Annotated[Location, Form()],
+                              session_id: Annotated[Optional[str], Cookie()] = None):
+    await LocationService.delete_location_service(location_data=location_data,
+                                                  session_id=session_id)
