@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict
-from src.locations.schemas import Location
+from weather.locations.schemas import Location
+from datetime import datetime
 
 
 class UserRegisterRequest(BaseModel):
@@ -14,6 +15,7 @@ class UserLoginRequest(BaseModel):
 
 class UserSessionResponse(BaseModel):
     session_id: str
+    expired_ts: datetime
 
 
 class UserSchema(BaseModel):
@@ -23,3 +25,4 @@ class UserSchema(BaseModel):
     login: str
     password: str
     locations: list[Location]
+

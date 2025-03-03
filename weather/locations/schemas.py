@@ -30,8 +30,7 @@ class WeatherSearchAPIRequest(BaseModel):
     appid: str
 
 
-class LocationWeather(BaseModel):
-    name: str
+class LocationWeather(Location):
     country: str
     temperature: int
     main_weather: str

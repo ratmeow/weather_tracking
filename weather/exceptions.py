@@ -16,3 +16,6 @@ class UserNotFoundError(ServiceError):
 
 class UnauthorizedUserError(ServiceError):
     pass
+
+class UserWrongPasswordError(ServiceError):
+    pass

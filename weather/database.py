@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from src.config import db_settings
-from src.exceptions import DatabaseInternalError
+from weather.config import db_settings
+from weather.exceptions import DatabaseInternalError
 import logging
 import asyncpg
 logger = logging.getLogger(__name__)

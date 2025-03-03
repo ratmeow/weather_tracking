@@ -1,10 +1,11 @@
 import requests
 from decimal import Decimal
-from src.locations.schemas import LocationSearchAPIRequest, WeatherSearchAPIRequest
+from weather.locations.schemas import LocationSearchAPIRequest, WeatherSearchAPIRequest
+from weather.config import app_settings
 
 
 class OpenWeatherAPI:
-    API_KEY = "264b8ba60b909b20215df2d979854c97"
+    API_KEY = app_settings.OPENWEATHER_API_KEY
     SEARCH_URL = "http://api.openweathermap.org/geo/1.0/direct"
     WEATHER_URL = "https://api.openweathermap.org/data/2.5/weather"
 

@@ -1,14 +1,14 @@
-from src.locations.schemas import Location, LocationSearchResponse, LocationWeather
-from src.users.service import UserService
-from src.locations.dao import LocationDAO
-from src.locations.open_weather_service import OpenWeatherAPI
+from weather.locations.schemas import Location, LocationSearchResponse, LocationWeather
+from weather.users.service import UserService
+from weather.locations.dao import LocationDAO
+from weather.locations.open_weather_service import OpenWeatherAPI
 
 
 class LocationService:
 
     @staticmethod
     async def search_locations_service(location_name: str, session_id: str) -> list[LocationSearchResponse]:
-        _ = await UserService.get_user_by_session(session_id=session_id)
+        # _ = await UserService.get_user_by_session(session_id=session_id)
         response = await OpenWeatherAPI.search_location(location_name=location_name)
         locations = [LocationSearchResponse(**city) for city in response]
         return locations
@@ -38,6 +38,8 @@ class LocationService:
             response = await OpenWeatherAPI.get_weather_by_location(latitude=loc.latitude,
                                                                     longitude=loc.longitude)
             locations_weather.append(LocationWeather(name=loc.name,
+                                                     latitude=loc.latitude,
+                                                     longitude=loc.longitude,
                                                      country=response["sys"]["country"],
                                                      main_weather=response["weather"][0]["main"],
                                                      temperature=int(response["main"]["temp"]),

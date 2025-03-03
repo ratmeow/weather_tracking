@@ -1,18 +1,18 @@
-from src.users.models import UserModel, UserSessionModel
-from src.locations.models import LocationModel
-from src.users.schemas import UserSchema
-from src.database import connection
+from weather.users.models import UserModel, UserSessionModel
+from weather.users.schemas import UserSchema, UserRegisterRequest
+from weather.database import connection
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 import uuid
 from typing import Optional
+from datetime import datetime, timezone, timedelta
 
 
 class UserDAO:
 
     @staticmethod
     @connection(commit=True)
-    async def add_user(user_data: UserSchema, session: AsyncSession) -> UserModel:
+    async def add_user(user_data: UserRegisterRequest, session: AsyncSession) -> UserModel:
         user = UserModel(login=user_data.login,
                          password=user_data.password)
         session.add(user)
@@ -31,7 +31,8 @@ class UserDAO:
     @connection(commit=True)
     async def add_user_session(user_id: int, session: AsyncSession) -> UserSessionModel:
         user_session = UserSessionModel(id=uuid.uuid4(),
-                                        user_id=user_id)
+                                        user_id=user_id,
+                                        expired_ts=datetime.now(timezone.utc) + timedelta(hours=3))
         session.add(user_session)
         await session.flush()
         return user_session
@@ -40,6 +41,19 @@ class UserDAO:
     @connection()
     async def get_user_session_by_id(session_id: int, session: AsyncSession) -> Optional[UserSessionModel]:
         user_session: UserSessionModel = await session.get(UserSessionModel, session_id)  # pycharm bug
+        return user_session
+
+    @staticmethod
+    @connection(commit=True)
+    async def update_user_session(user_session: UserSessionModel,
+                                  session: AsyncSession,
+                                  new_id: bool = False):
+        if new_id:
+            user_session.id = uuid.uuid4()
+
+        user_session.expired_ts = datetime.now(timezone.utc) + timedelta(hours=3)
+        session.add(user_session)
+        await session.flush()
         return user_session
 
     @staticmethod

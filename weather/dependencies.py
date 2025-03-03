@@ -1,5 +1,5 @@
-from src.users.dao import UserDAO
-from src.exceptions import UnauthorizedUserError
+from weather.users.dao import UserDAO
+from weather.exceptions import UnauthorizedUserError
 
 
 async def get_user_session(session_id: int):
