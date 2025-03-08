@@ -1,28 +1,29 @@
-from fastapi import APIRouter, Response, Cookie, Form, HTTPException, Request
+from fastapi import APIRouter, Response, Cookie, Form, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 from typing import Annotated, Optional
 from weather.users.schemas import UserSchema, UserRegisterRequest, UserLoginRequest, UserSessionResponse
 from weather.users.service import UserService
-from weather.locations.service import LocationService
 from weather.exceptions import UserAlreadyExistsError, DatabaseInternalError, UserNotFoundError
-from weather.locations.schemas import Location
+from weather.dependencies import get_user_service
 
 router = APIRouter(tags=["user"])
 
 
 @router.post("/register")
-async def register_user_api(register_data: UserRegisterRequest):
+async def register_user_api(register_data: UserRegisterRequest,
+                            user_service: UserService = Depends(get_user_service)):
     try:
-        await UserService.register_user_service(register_data=register_data)
+        await user_service.register_user_service(register_data=register_data)
         return Response(status_code=200)
     except UserAlreadyExistsError as e:
         raise HTTPException(status_code=400, detail=e.message)
 
 
 @router.post("/login")
-async def login_user_api(response: Response, login_data: UserLoginRequest):
+async def login_user_api(login_data: UserLoginRequest,
+                         user_service: UserService = Depends(get_user_service)):
     try:
-        user_session = await UserService.login_user_service(login_data=login_data)
+        user_session = await user_service.login_user_service(login_data=login_data)
         response = JSONResponse(content={"username": login_data.login})
         response.set_cookie(
             key="session_id",
@@ -34,10 +35,10 @@ async def login_user_api(response: Response, login_data: UserLoginRequest):
         raise HTTPException(status_code=404, detail=e.message)
 
 
-# поменять на пост
 @router.post("/logout")
-async def logout_user_api(session_id: Annotated[Optional[str], Cookie()] = None):
-    await UserService.logout_user_service(session_id=session_id)
+async def logout_user_api(session_id: Annotated[Optional[str], Cookie()] = None,
+                          user_service: UserService = Depends(get_user_service)):
+    await user_service.logout_user_service(session_id=session_id)
     response = Response(status_code=200)
     response.delete_cookie(key="session_id")
     return response

@@ -1,10 +1,10 @@
 from decimal import Decimal
 from weather.database import Base
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy.orm import Mapped, mapped_column
 from sqlalchemy import ForeignKey
 
 
-class LocationModel(Base):
+class LocationORM(Base):
     __tablename__ = "locations"
 
     name: Mapped[str] = mapped_column(nullable=False)
@@ -12,8 +12,8 @@ class LocationModel(Base):
     longitude: Mapped[Decimal] = mapped_column(nullable=False)
 
 
-class LocationUserModel(Base):
+class LocationUserORM(Base):
     __tablename__ = "user_location_relation"
-
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
-    location_id: Mapped[int] = mapped_column(ForeignKey("locations.id"))
+    id = None
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), primary_key=True)
+    location_id: Mapped[int] = mapped_column(ForeignKey("locations.id"), primary_key=True)
