@@ -14,8 +14,14 @@ class UserAlreadyExistsError(ServiceError):
 class UserNotFoundError(ServiceError):
     pass
 
+
 class UnauthorizedUserError(ServiceError):
     pass
 
+
 class UserWrongPasswordError(ServiceError):
+    pass
+
+
+class UniqueError(ServiceError):
     pass

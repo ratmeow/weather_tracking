@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncAttrs, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
-from weather.exceptions import DatabaseInternalError
+from weather.exceptions import DatabaseInternalError, UniqueError
 import logging
 
 logger = logging.getLogger(__name__)
@@ -17,12 +17,11 @@ async def get_session(database: Database):
     async with database.async_session_maker() as session:
         try:
             yield session
+            await session.commit()
         except Exception as e:
             await session.rollback()
             logger.error("Database Error: ", e)
             raise DatabaseInternalError
-        finally:
-            await session.close()
 
 
 class Base(AsyncAttrs, DeclarativeBase):

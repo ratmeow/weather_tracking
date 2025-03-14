@@ -1,7 +1,7 @@
 from decimal import Decimal
 from weather.database import Base
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import ForeignKey
+from sqlalchemy import ForeignKey, UniqueConstraint
 
 
 class LocationORM(Base):
@@ -10,6 +10,10 @@ class LocationORM(Base):
     name: Mapped[str] = mapped_column(nullable=False)
     latitude: Mapped[Decimal] = mapped_column(nullable=False)
     longitude: Mapped[Decimal] = mapped_column(nullable=False)
+
+    __table_args__ = (
+        UniqueConstraint("latitude", "longitude", name="unique_lat_long"),
+    )
 
 
 class LocationUserORM(Base):

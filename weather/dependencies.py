@@ -1,5 +1,6 @@
 from typing import Optional, Annotated
 
+import aiohttp
 from fastapi import Depends, Request, Cookie
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -36,8 +37,14 @@ async def get_user_service(user_dao: UserDAO = Depends(get_user_dao)):
     return UserService(user_dao=user_dao)
 
 
-async def get_weather_api_service(settings: AppSettings = Depends(get_app_settings)):
-    return OpenWeatherAPI(api_key=settings.OPENWEATHER_API_KEY)
+async def get_weather_api_session(request: Request):
+    yield request.app.state.weather_api_session
+
+
+async def get_weather_api_service(api_session: aiohttp.ClientSession = Depends(get_weather_api_session),
+                                  settings: AppSettings = Depends(get_app_settings)):
+    return OpenWeatherAPI(api_session=api_session,
+                          api_key=settings.OPENWEATHER_API_KEY)
 
 
 async def get_location_service(location_dao: LocationDAO = Depends(get_location_dao),
@@ -48,7 +55,6 @@ async def get_location_service(location_dao: LocationDAO = Depends(get_location_
 
 async def get_user(session_id: Annotated[Optional[str], Cookie()] = None,
                    user_service: UserService = Depends(get_user_service)) -> UserSchema:
-
     if not session_id:
         raise UnauthorizedUserError
     user_session = await user_service.get_user_by_session(session_id=session_id)

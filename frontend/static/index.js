@@ -190,6 +190,13 @@ async function addLocation(name, lat, lon) {
         if (!response.ok) {
             if (response.status === 401) {
                 resetAuthState();
+                showError('To add locations, you need to log in.');
+                return;
+            }
+                    if (response.status === 409) {
+                const errorData = await response.json();
+                const errorMessage = errorData.message
+                showError(errorMessage);
                 return;
             }
             throw new Error(`Failed to add location: ${response.status}`);

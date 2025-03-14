@@ -1,7 +1,6 @@
 from weather.locations.schemas import Location, LocationSearchResponse, LocationWeather
 from weather.locations.dao import LocationDAO
 
-
 class LocationService:
 
     def __init__(self, location_dao, weather_api_service):
@@ -14,8 +13,12 @@ class LocationService:
         return locations
 
     async def add_location_service(self, location_data: Location, user_id: int) -> None:
-        await self.location_dao.add_location(user_id=user_id,
-                                             location_data=location_data)
+        location = await self.location_dao.add_location(location_data=location_data)
+        if location is None:
+            location = await self.location_dao.get_location(location_data=location_data)
+
+        await self.location_dao.add_user_location(user_id=user_id,
+                                                  location_id=location.id)
 
     async def delete_location_service(self, location_data: Location, user_id: int) -> None:
         await self.location_dao.delete_location(user_id=user_id,

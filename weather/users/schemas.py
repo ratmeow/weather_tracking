@@ -24,5 +24,4 @@ class UserSchema(BaseModel):
     id: int
     login: str
     password: str
-    locations: list[Location]
 
