@@ -1,8 +1,8 @@
-"""initial
+"""Initial
 
-Revision ID: c4101d8bd06f
+Revision ID: 0100cfe95062
 Revises: 
-Create Date: 2025-02-24 17:15:58.084075
+Create Date: 2025-03-09 10:37:23.424169
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'c4101d8bd06f'
+revision: str = '0100cfe95062'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -25,7 +25,8 @@ def upgrade() -> None:
     sa.Column('latitude', sa.Numeric(), nullable=False),
     sa.Column('longitude', sa.Numeric(), nullable=False),
     sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('latitude', 'longitude', name='unique_lat_long')
     )
     op.create_table('users',
     sa.Column('login', sa.String(), nullable=False),
@@ -37,10 +38,9 @@ def upgrade() -> None:
     op.create_table('user_location_relation',
     sa.Column('user_id', sa.Integer(), nullable=False),
     sa.Column('location_id', sa.Integer(), nullable=False),
-    sa.Column('id', sa.Integer(), autoincrement=True, nullable=False),
     sa.ForeignKeyConstraint(['location_id'], ['locations.id'], ),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
-    sa.PrimaryKeyConstraint('id')
+    sa.PrimaryKeyConstraint('user_id', 'location_id')
     )
     op.create_table('user_sessions',
     sa.Column('id', sa.Uuid(), nullable=False),

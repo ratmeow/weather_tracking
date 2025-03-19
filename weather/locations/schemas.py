@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from decimal import Decimal
 
 
-class Location(BaseModel):
+class LocationDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     name: str
     latitude: Decimal
@@ -30,7 +30,7 @@ class WeatherSearchAPIRequest(BaseModel):
     appid: str
 
 
-class LocationWeather(Location):
+class LocationWeatherResponse(LocationDTO):
     country: str
     temperature: int
     main_weather: str

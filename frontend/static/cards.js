@@ -8,7 +8,7 @@ function createWeatherCard(location) {
     card.innerHTML = `
         <div class="card h-100 position-relative weather-card">
             <div class="position-absolute weather-card-delete-form">
-                <button class="btn-close" aria-label="Delete"></button>
+                <button class="btn-close" onclick="deleteLocation('${location.name}', ${location.latitude}, ${location.longitude})" aria-label="Delete"></button>
             </div>
             <img class="card-img-top img-fluid"
                  src="https://openweathermap.org/img/wn/${getWeatherIcon(location.main_weather)}@4x.png"
@@ -20,9 +20,6 @@ function createWeatherCard(location) {
                 <p class="card-text mb-1">Feels like <span>${location.temperature_feels}</span>°C.</p>
                 <p class="card-text mb-1">Humidity: ${location.humidity}%</p>
                 <p class="card-text mb-1">Wind speed: ${location.wind_speed} m/s</p>
-                <div class="mt-auto">
-                    <button class="btn btn-primary w-100" onclick="deleteLocation('${location.name}', ${location.latitude}, ${location.longitude})">Delete</button>
-                </div>
             </div>
         </div>
     `;
