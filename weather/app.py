@@ -8,6 +8,7 @@ from weather.database import Database
 from weather.exceptions import UnauthorizedUserError, UniqueError
 import aiohttp
 from contextlib import asynccontextmanager
+from weather.http_client.implementations import AiohttpClient
 
 
 @asynccontextmanager
@@ -16,12 +17,15 @@ async def lifespan(app: FastAPI):
     database = Database(db_settings.db_url)
 
     app.state.db_settings = db_settings
+
     app.state.weather_api_settings = WeatherAPISettings()
     app.state.database = database
 
-    async with aiohttp.ClientSession() as session:
-        app.state.weather_api_session = session
-        yield
+
+    app.state.http_client = AiohttpClient(timeout=10.0)
+    yield
+
+    await app.state.http_client.close()
 
 
 app = FastAPI(lifespan=lifespan)

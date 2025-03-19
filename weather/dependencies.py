@@ -13,6 +13,7 @@ from weather.locations.open_weather_service import OpenWeatherAPI
 from weather.exceptions import UnauthorizedUserError
 from weather.settings import WeatherAPISettings
 from weather.database import get_session
+from weather.http_client.base import AsyncHTTPClient
 
 
 async def get_db_session(request: Request) -> AsyncSession:
@@ -37,13 +38,13 @@ async def get_user_service(user_dao: UserDAO = Depends(get_user_dao)):
     return UserService(user_dao=user_dao)
 
 
-async def get_weather_api_session(request: Request):
-    yield request.app.state.weather_api_session
+async def get_http_client(request: Request):
+    yield request.app.state.http_client
 
 
-async def get_weather_api_service(api_session: aiohttp.ClientSession = Depends(get_weather_api_session),
+async def get_weather_api_service(http_client: AsyncHTTPClient = Depends(get_http_client),
                                   settings: WeatherAPISettings = Depends(get_weather_api_settings)):
-    return OpenWeatherAPI(api_session=api_session,
+    return OpenWeatherAPI(async_client=http_client,
                           settings=settings)
 
 
