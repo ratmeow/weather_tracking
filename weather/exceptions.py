@@ -25,3 +25,7 @@ class UserWrongPasswordError(ServiceError):
 
 class UniqueError(ServiceError):
     pass
+
+
+class WeatherAPIError(ServiceError):
+    pass

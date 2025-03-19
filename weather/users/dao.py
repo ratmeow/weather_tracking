@@ -1,5 +1,5 @@
 from weather.users.models import UserORM, UserSessionORM
-from weather.users.schemas import UserSchema, UserRegisterRequest
+from weather.users.schemas import UserDTO, UserRegisterRequest
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, delete
 import uuid

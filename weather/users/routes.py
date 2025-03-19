@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Response, Cookie, Form, HTTPException, Request, Depends
 from fastapi.responses import JSONResponse
 from typing import Annotated, Optional
-from weather.users.schemas import UserSchema, UserRegisterRequest, UserLoginRequest, UserSessionResponse
+from weather.users.schemas import UserDTO, UserRegisterRequest, UserLoginRequest, UserSessionResponse
 from weather.users.service import UserService
 from weather.exceptions import UserAlreadyExistsError, DatabaseInternalError, UserNotFoundError
 from weather.dependencies import get_user_service

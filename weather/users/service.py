@@ -1,4 +1,4 @@
-from weather.users.schemas import UserSchema, UserRegisterRequest, UserLoginRequest, UserSessionResponse
+from weather.users.schemas import UserDTO, UserRegisterRequest, UserLoginRequest, UserSessionResponse
 from weather.auth.utils import get_pwd_hash, verify_pwd
 from weather.users.models import UserORM, UserSessionORM
 from weather.exceptions import UserAlreadyExistsError, UserNotFoundError, UnauthorizedUserError, UserWrongPasswordError
@@ -37,12 +37,12 @@ class UserService:
     async def logout_user_service(self, session_id: str) -> None:
         return await self.user_dao.remove_user_session(session_id=session_id)
 
-    async def get_user_by_session(self, session_id: str) -> UserSchema:
+    async def get_user_by_session(self, session_id: str) -> UserDTO:
         user_session: UserSessionORM = await self.user_dao.get_user_session_by_id(session_id=session_id)
         if not user_session or await self._session_expired_check(user_session=user_session):
             raise UnauthorizedUserError
         await self.user_dao.update_user_session(user_session=user_session)
-        user = UserSchema.from_orm(user_session.user)
+        user = UserDTO.from_orm(user_session.user)
         return user
 
     @staticmethod

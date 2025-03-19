@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from weather.locations.schemas import Location
+from weather.locations.schemas import LocationDTO
 from weather.locations.models import LocationORM, LocationUserORM
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -11,7 +11,7 @@ class LocationDAO:
     def __init__(self, db_session: AsyncSession):
         self.db_session = db_session
 
-    async def add_location(self, location_data: Location) -> Optional[LocationORM]:
+    async def add_location(self, location_data: LocationDTO) -> Optional[LocationORM]:
         location = LocationORM(**location_data.model_dump())
         try:
             self.db_session.add(location)
@@ -21,7 +21,7 @@ class LocationDAO:
             await self.db_session.rollback()
             return None
 
-    async def get_location(self, location_data: Location) -> LocationORM:
+    async def get_location(self, location_data: LocationDTO) -> LocationORM:
         location_query = select(LocationORM).filter_by(longitude=location_data.longitude,
                                                        latitude=location_data.latitude)
         location = await self.db_session.scalar(location_query)
@@ -37,7 +37,7 @@ class LocationDAO:
             await self.db_session.rollback()
             raise UniqueError("This location already in your collection")
 
-    async def delete_location(self, user_id: int, location_data: Location) -> None:
+    async def delete_location(self, user_id: int, location_data: LocationDTO) -> None:
         location = await self.get_location(location_data=location_data)
 
         if location:

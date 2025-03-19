@@ -1,5 +1,6 @@
-from weather.locations.schemas import Location, LocationSearchResponse, LocationWeather
+from weather.locations.schemas import LocationDTO, LocationSearchResponse, LocationWeatherResponse
 from weather.locations.dao import LocationDAO
+
 
 class LocationService:
 
@@ -12,7 +13,7 @@ class LocationService:
         locations = [LocationSearchResponse(**city) for city in response]
         return locations
 
-    async def add_location_service(self, location_data: Location, user_id: int) -> None:
+    async def add_location_service(self, location_data: LocationDTO, user_id: int) -> None:
         location = await self.location_dao.add_location(location_data=location_data)
         if location is None:
             location = await self.location_dao.get_location(location_data=location_data)
@@ -20,24 +21,17 @@ class LocationService:
         await self.location_dao.add_user_location(user_id=user_id,
                                                   location_id=location.id)
 
-    async def delete_location_service(self, location_data: Location, user_id: int) -> None:
+    async def delete_location_service(self, location_data: LocationDTO, user_id: int) -> None:
         await self.location_dao.delete_location(user_id=user_id,
                                                 location_data=location_data)
 
-    async def get_locations_by_user_service(self, user_id: int) -> list[LocationWeather]:
+    async def get_locations_by_user_service(self, user_id: int) -> list[LocationWeatherResponse]:
         locations = await self.location_dao.get_locations_by_user_id(user_id=user_id)
         locations_weather = []
 
         for loc in locations:
             response = await self.weather_api_service.get_weather_by_location(latitude=loc.latitude,
                                                                               longitude=loc.longitude)
-            locations_weather.append(LocationWeather(name=loc.name,
-                                                     latitude=loc.latitude,
-                                                     longitude=loc.longitude,
-                                                     country=response["sys"]["country"],
-                                                     main_weather=response["weather"][0]["main"],
-                                                     temperature=int(response["main"]["temp"]),
-                                                     temperature_feels=int(response["main"]["feels_like"]),
-                                                     wind_speed=int(response["wind"]["speed"]),
-                                                     humidity=response["main"]["humidity"]))
+            locations_weather.append(LocationWeatherResponse(name=loc.name,
+                                                 humidity=response["main"]["humidity"]))
         return locations_weather

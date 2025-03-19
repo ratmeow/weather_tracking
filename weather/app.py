@@ -3,11 +3,12 @@ from weather.locations.routes import router as location_router
 from fastapi import FastAPI, Depends, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from weather.settings import DatabaseSettings, AppSettings
+from weather.settings import DatabaseSettings, WeatherAPISettings
 from weather.database import Database
 from weather.exceptions import UnauthorizedUserError, UniqueError
 import aiohttp
 from contextlib import asynccontextmanager
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -15,12 +16,13 @@ async def lifespan(app: FastAPI):
     database = Database(db_settings.db_url)
 
     app.state.db_settings = db_settings
-    app.state.app_settings = AppSettings()
+    app.state.weather_api_settings = WeatherAPISettings()
     app.state.database = database
 
     async with aiohttp.ClientSession() as session:
         app.state.weather_api_session = session
         yield
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -41,6 +43,7 @@ async def unauthorized_exception_handler(
         request: Request, exc: UnauthorizedUserError
 ):
     return JSONResponse(status_code=401, content={"message": exc.message})
+
 
 @app.exception_handler(UniqueError)
 async def already_exists_exception_handler(

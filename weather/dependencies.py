@@ -6,12 +6,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from weather.users.dao import UserDAO
 from weather.users.service import UserService
-from weather.users.schemas import UserSchema
+from weather.users.schemas import UserDTO
 from weather.locations.dao import LocationDAO
 from weather.locations.service import LocationService
 from weather.locations.open_weather_service import OpenWeatherAPI
 from weather.exceptions import UnauthorizedUserError
-from weather.settings import AppSettings
+from weather.settings import WeatherAPISettings
 from weather.database import get_session
 
 
@@ -21,8 +21,8 @@ async def get_db_session(request: Request) -> AsyncSession:
         yield session
 
 
-def get_app_settings(request: Request) -> AppSettings:
-    return request.app.state.app_settings
+def get_weather_api_settings(request: Request) -> WeatherAPISettings:
+    return request.app.state.weather_api_settings
 
 
 async def get_user_dao(db_session: AsyncSession = Depends(get_db_session)):
@@ -42,9 +42,9 @@ async def get_weather_api_session(request: Request):
 
 
 async def get_weather_api_service(api_session: aiohttp.ClientSession = Depends(get_weather_api_session),
-                                  settings: AppSettings = Depends(get_app_settings)):
+                                  settings: WeatherAPISettings = Depends(get_weather_api_settings)):
     return OpenWeatherAPI(api_session=api_session,
-                          api_key=settings.OPENWEATHER_API_KEY)
+                          settings=settings)
 
 
 async def get_location_service(location_dao: LocationDAO = Depends(get_location_dao),
@@ -54,8 +54,8 @@ async def get_location_service(location_dao: LocationDAO = Depends(get_location_
 
 
 async def get_user(session_id: Annotated[Optional[str], Cookie()] = None,
-                   user_service: UserService = Depends(get_user_service)) -> UserSchema:
+                   user_service: UserService = Depends(get_user_service)) -> UserDTO:
     if not session_id:
         raise UnauthorizedUserError
-    user_session = await user_service.get_user_by_session(session_id=session_id)
-    return user_session
+    user = await user_service.get_user_by_session(session_id=session_id)
+    return user

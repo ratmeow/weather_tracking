@@ -1,5 +1,5 @@
 from pydantic import BaseModel, ConfigDict
-from weather.locations.schemas import Location
+from weather.locations.schemas import LocationDTO
 from datetime import datetime
 
 
@@ -18,7 +18,7 @@ class UserSessionResponse(BaseModel):
     expired_ts: datetime
 
 
-class UserSchema(BaseModel):
+class UserDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: int
