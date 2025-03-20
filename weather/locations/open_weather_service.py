@@ -1,46 +1,36 @@
 from decimal import Decimal
 from weather.locations.schemas import LocationSearchAPIRequest, WeatherSearchAPIRequest
-import aiohttp
 import logging
 from weather.exceptions import ServiceError, WeatherAPIError
 from weather.settings import WeatherAPISettings
+from weather.http_client.base import AsyncHTTPClient
+from weather.http_client.exceptions import NotFoundError
 
 logger = logging.getLogger(__name__)
-
-
-def weather_api_exception_handler(method):
-    async def wrapper(self, *args, **kwargs):
-        try:
-            return await method(self, *args, **kwargs)
-        except aiohttp.ClientResponseError as e:
-            logger.error(e)
-            raise WeatherAPIError
-        except Exception as e:
-            logger.error(f"WeatherAPI connection error: {e}")
-            raise ServiceError
-
-    return wrapper
 
 
 class OpenWeatherAPI:
 
     def __init__(self,
-                 api_session: aiohttp.ClientSession,
+                 async_client: AsyncHTTPClient,
                  settings: WeatherAPISettings):
-
+        self.async_client = async_client
         self.settings = settings
-        self.api_session = api_session
 
-    @weather_api_exception_handler
     async def search_location(self, location_name: str) -> dict:
         params = LocationSearchAPIRequest(q=location_name,
                                           appid=self.settings.API_KEY)
 
-        async with self.api_session.get(url=self.settings.SEARCH_URL, params=params.model_dump()) as response:
-            response.raise_for_status()
-            return await response.json()
+        try:
+            response_json = await self.async_client.get(url=self.settings.SEARCH_URL,
+                                                        params=params.model_dump())
+            return response_json
+        except NotFoundError as e:
+            raise e
+        except Exception as e:
+            logger.error(e)
+            raise ServiceError
 
-    @weather_api_exception_handler
     async def get_weather_by_location(self,
                                       latitude: Decimal,
                                       longitude: Decimal) -> dict:
@@ -48,6 +38,12 @@ class OpenWeatherAPI:
                                          lon=longitude,
                                          appid=self.settings.API_KEY)
 
-        async with self.api_session.get(url=self.settings.WEATHER_URL, params=params.model_dump()) as response:
-            response.raise_for_status()
-            return await response.json()
+        try:
+            response_json = await self.async_client.get(url=self.settings.WEATHER_URL,
+                                                        params=params.model_dump())
+            return response_json
+        except NotFoundError as e:
+            raise e
+        except Exception as e:
+            logger.error(e)
+            raise ServiceError
