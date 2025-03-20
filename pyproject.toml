@@ -25,6 +25,11 @@ aiohttp = "^3.11.13"
 [tool.poetry.group.develop.dependencies]
 requests = "^2.32.3"
 
+
+[tool.poetry.group.test.dependencies]
+pytest = "^8.3.5"
+pytest-asyncio = "^0.25.3"
+
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
