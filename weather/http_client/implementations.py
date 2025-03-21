@@ -2,7 +2,7 @@ import aiohttp
 from typing import Optional
 
 from .base import AsyncHTTPClient
-from .exceptions import NotFoundError
+from .exceptions import RemoteServerError
 
 
 class AiohttpClient(AsyncHTTPClient):
@@ -16,7 +16,7 @@ class AiohttpClient(AsyncHTTPClient):
             try:
                 return await method(self, *args, **kwargs)
             except aiohttp.ClientResponseError:
-                raise NotFoundError
+                raise RemoteServerError
 
         return wrapper
 

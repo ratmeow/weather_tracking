@@ -3,7 +3,7 @@ from weather.locations.routes import router as location_router
 from fastapi import FastAPI, Depends, Request
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from weather.settings import DatabaseSettings, WeatherAPISettings
+from weather.settings import DatabaseSettings, WeatherClientSettings
 from weather.database import Database
 from weather.exceptions import UnauthorizedUserError, UniqueError
 import aiohttp
@@ -18,9 +18,8 @@ async def lifespan(app: FastAPI):
 
     app.state.db_settings = db_settings
 
-    app.state.weather_api_settings = WeatherAPISettings()
+    app.state.weather_api_settings = WeatherClientSettings()
     app.state.database = database
-
 
     app.state.http_client = AiohttpClient(timeout=10.0)
     yield

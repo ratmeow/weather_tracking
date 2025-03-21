@@ -1,5 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 from decimal import Decimal
+from typing import Optional
 
 
 class LocationDTO(BaseModel):
@@ -9,31 +10,14 @@ class LocationDTO(BaseModel):
     longitude: Decimal
 
 
-class LocationSearchResponse(BaseModel):
-    name: str
-    lat: Decimal
-    lon: Decimal
-    country: str = None
-    state: str = None
+class LocationResponse(LocationDTO):
+    country: Optional[str] = None
+    state: Optional[str] = None
 
 
-class LocationSearchAPIRequest(BaseModel):
-    q: str
-    appid: str
-    limit: int = 5
-
-
-class WeatherSearchAPIRequest(BaseModel):
-    lat: Decimal
-    lon: Decimal
-    units: str = "metric"
-    appid: str
-
-
-class LocationWeatherResponse(LocationDTO):
-    country: str
-    temperature: int
-    main_weather: str
-    wind_speed: int
-    temperature_feels: int
-    humidity: int
+class WeatherResponse(LocationResponse):
+    temperature: Optional[int] = Field(default=None)
+    main_weather: Optional[str] = Field(default=None, alias="mainWeather")
+    wind_speed: Optional[int] = Field(default=None, alias="windSpeed")
+    temperature_feels: Optional[int] = Field(default=None, alias="temperatureFeels")
+    humidity: Optional[int] = Field(default=None)

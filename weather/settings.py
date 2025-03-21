@@ -6,7 +6,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ENV_PATH = os.path.join(BASE_DIR, "..", ".env")
 
 
-class WeatherAPISettings(BaseSettings):
+class WeatherClientSettings(BaseSettings):
     model_config = SettingsConfigDict(env_file=ENV_PATH, extra="ignore")
 
     API_KEY: str = Field(validation_alias="OPENWEATHER_API_KEY")
