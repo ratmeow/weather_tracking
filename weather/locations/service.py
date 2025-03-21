@@ -2,7 +2,8 @@ from weather.locations.schemas import LocationDTO
 from weather.locations.dao import LocationDAO
 from weather.weather_client.base import WeatherClient
 from weather.locations.schemas import LocationResponse, WeatherResponse
-from weather.locations.adapters import map_location_from_open_weather, map_weather_from_open_weather
+from weather.locations.adapters import WeatherClientAdapter
+from weather.exceptions import ServiceError
 
 
 class LocationService:
@@ -10,6 +11,11 @@ class LocationService:
     def __init__(self, location_dao, weather_client):
         self.location_dao: LocationDAO = location_dao
         self.weather_client: WeatherClient = weather_client
+
+        self.location_mapper = WeatherClientAdapter.get_location_mapper(client=weather_client)
+        self.weather_mapper = WeatherClientAdapter.get_weather_mapper(client=weather_client)
+        if not self.location_mapper or not self.weather_mapper:
+            raise ServiceError
 
     async def add_location_service(self, location_data: LocationDTO, user_id: int) -> None:
         location = await self.location_dao.add_location(location_data=location_data)
@@ -25,7 +31,7 @@ class LocationService:
 
     async def search_locations_service(self, location_name: str) -> list[LocationResponse]:
         response = await self.weather_client.search_location(location_name=location_name)
-        locations = [map_location_from_open_weather(response=resp) for resp in response]
+        locations = [self.location_mapper(response=resp) for resp in response]
         return locations
 
     async def get_locations_by_user_service(self, user_id: int) -> list[WeatherResponse]:
@@ -35,7 +41,7 @@ class LocationService:
         for loc in locations:
             response = await self.weather_client.get_weather_by_location(latitude=loc.latitude,
                                                                          longitude=loc.longitude)
-            weather = map_weather_from_open_weather(name=loc.name, response=response)
+            weather = self.weather_mapper(name=loc.name, response=response)
             locations_weather.append(weather)
 
         return locations_weather
