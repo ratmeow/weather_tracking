@@ -17,25 +17,25 @@ class LocationService:
         if not self.location_mapper or not self.weather_mapper:
             raise ServiceError
 
-    async def add_location_service(self, location_data: LocationDTO, user_id: int) -> None:
-        location = await self.location_dao.add_location(location_data=location_data)
+    async def add_location(self, location_data: LocationDTO, user_id: int) -> None:
+        location = await self.location_dao.add(location_data=location_data)
         if location is None:
-            location = await self.location_dao.get_location(location_data=location_data)
+            location = await self.location_dao.get(location_data=location_data)
 
-        await self.location_dao.add_user_location(user_id=user_id,
-                                                  location_id=location.id)
+        await self.location_dao.add_to_user(user_id=user_id,
+                                            location_id=location.id)
 
-    async def delete_location_service(self, location_data: LocationDTO, user_id: int) -> None:
-        await self.location_dao.delete_location(user_id=user_id,
-                                                location_data=location_data)
+    async def delete_location(self, location_data: LocationDTO, user_id: int) -> None:
+        await self.location_dao.delete(user_id=user_id,
+                                       location_data=location_data)
 
-    async def search_locations_service(self, location_name: str) -> list[LocationResponse]:
+    async def search_location(self, location_name: str) -> list[LocationResponse]:
         response = await self.weather_client.search_location(location_name=location_name)
         locations = [self.location_mapper(response=resp) for resp in response]
         return locations
 
-    async def get_locations_by_user_service(self, user_id: int) -> list[WeatherResponse]:
-        locations = await self.location_dao.get_locations_by_user_id(user_id=user_id)
+    async def get_locations_by_user(self, user_id: int) -> list[WeatherResponse]:
+        locations = await self.location_dao.get_by_user_id(user_id=user_id)
         locations_weather = []
 
         for loc in locations:

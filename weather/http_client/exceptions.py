@@ -1,2 +1,2 @@
-class RemoteServerError(Exception):
+class AsyncClientInternalError(Exception):
     pass

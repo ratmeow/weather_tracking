@@ -8,7 +8,7 @@ from weather.database import Database
 from weather.exceptions import UnauthorizedUserError, UniqueError
 import aiohttp
 from contextlib import asynccontextmanager
-from weather.http_client.implementations import AiohttpClient
+from weather.http_client.aiohttp_client import AiohttpClient
 
 
 @asynccontextmanager

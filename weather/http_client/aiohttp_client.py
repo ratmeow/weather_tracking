@@ -2,7 +2,7 @@ import aiohttp
 from typing import Optional
 
 from .base import AsyncHTTPClient
-from .exceptions import RemoteServerError
+from .exceptions import AsyncClientInternalError
 
 
 class AiohttpClient(AsyncHTTPClient):
@@ -15,13 +15,13 @@ class AiohttpClient(AsyncHTTPClient):
         async def wrapper(self, *args, **kwargs):
             try:
                 return await method(self, *args, **kwargs)
-            except aiohttp.ClientResponseError:
-                raise RemoteServerError
+            except aiohttp.ClientError:
+                raise AsyncClientInternalError
 
         return wrapper
 
     @exception_handler
-    async def get(self, url: str, params: Optional[dict]) -> dict:
+    async def get(self, url: str, params: Optional[dict]) -> dict | list[dict]:
         async with self.session.get(url=url, params=params) as resp:
             resp.raise_for_status()
             return await resp.json()

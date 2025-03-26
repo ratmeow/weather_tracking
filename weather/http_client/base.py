@@ -7,7 +7,7 @@ class AsyncHTTPClient(ABC):
         self.timeout = timeout
 
     @abstractmethod
-    async def get(self, url: str, params: Optional[dict]) -> dict:
+    async def get(self, url: str, params: Optional[dict]) -> dict | list[dict]:
         pass
 
     @abstractmethod

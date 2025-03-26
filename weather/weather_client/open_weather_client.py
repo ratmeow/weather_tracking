@@ -4,10 +4,10 @@ from .schemas import OpenWeatherLocationSearchRequest, OpenWeatherLocationWeathe
 import logging
 from weather.settings import WeatherClientSettings
 from weather.http_client.base import AsyncHTTPClient
-from weather.http_client.exceptions import RemoteServerError
-from .exceptions import InternalOpenWeatherClientError, OpenWeatherClientResponseError
+from .exceptions import OpenWeatherClientError
 from .utils import safe_int
 from .base import WeatherClient
+from weather.http_client.exceptions import AsyncClientInternalError
 
 logger = logging.getLogger(__name__)
 
@@ -28,11 +28,11 @@ class OpenWeatherClient(WeatherClient):
             response_json = await self.async_client.get(url=self.settings.SEARCH_URL,
                                                         params=params.model_dump())
             return [OpenWeatherLocationResponse(**item) for item in response_json]
-        except RemoteServerError:
-            raise OpenWeatherClientResponseError
+        except AsyncClientInternalError as e:
+            raise e
         except Exception as e:
             logger.error(e)
-            raise InternalOpenWeatherClientError
+            raise OpenWeatherClientError
 
     async def get_weather_by_location(self,
                                       latitude: Decimal,
@@ -60,8 +60,8 @@ class OpenWeatherClient(WeatherClient):
                                                          humidity=safe_int(main_info.get("humidity")))
 
             return weather
-        except RemoteServerError:
-            raise OpenWeatherClientResponseError
+        except AsyncClientInternalError as e:
+            raise e
         except Exception as e:
             logger.error(e)
-            raise InternalOpenWeatherClientError
+            raise OpenWeatherClientError

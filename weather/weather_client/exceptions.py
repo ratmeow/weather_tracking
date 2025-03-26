@@ -1,6 +1,2 @@
-class InternalOpenWeatherClientError(Exception):
-    pass
-
-
-class OpenWeatherClientResponseError(Exception):
+class OpenWeatherClientError(Exception):
     pass

@@ -13,7 +13,7 @@ router = APIRouter(tags=["user"])
 async def register_user_api(register_data: UserRegisterRequest,
                             user_service: UserService = Depends(get_user_service)):
     try:
-        await user_service.register_user_service(register_data=register_data)
+        await user_service.register_user(register_data=register_data)
         return Response(status_code=200)
     except UserAlreadyExistsError as e:
         raise HTTPException(status_code=400, detail=e.message)
@@ -23,7 +23,7 @@ async def register_user_api(register_data: UserRegisterRequest,
 async def login_user_api(login_data: UserLoginRequest,
                          user_service: UserService = Depends(get_user_service)):
     try:
-        user_session = await user_service.login_user_service(login_data=login_data)
+        user_session = await user_service.login_user(login_data=login_data)
         response = JSONResponse(content={"username": login_data.login})
         response.set_cookie(
             key="session_id",
@@ -38,7 +38,7 @@ async def login_user_api(login_data: UserLoginRequest,
 @router.post("/logout")
 async def logout_user_api(session_id: Annotated[Optional[str], Cookie()] = None,
                           user_service: UserService = Depends(get_user_service)):
-    await user_service.logout_user_service(session_id=session_id)
+    await user_service.logout_user(session_id=session_id)
     response = Response(status_code=200)
     response.delete_cookie(key="session_id")
     return response
